@@ -58,7 +58,7 @@ async def get_stats(request):
         count = row[1]
         browsers[browser] = count
     values = get_stats_values(sql_queries)
-    link = 'http://172.20.10.2:8080/'
+    link = 'http://0.0.0.0:8080/'
     link_text = 'Вернуться назад'
     text_data = f"Number of visits this day: {values.get('day')}\n" \
                 f"Number of visits this month: {values.get('month')}\n" \
@@ -71,6 +71,20 @@ async def get_stats(request):
     html_data = (f'<html></head><body style="background-color: #161616;color: #DCDCDC;"><pre style="word-wrap: '
                  f'break-word; white-space: pre-wrap;">{text_data}</pre><a style = "color: #DCDCDC;" href="{link}">{
                  link_text}</a></body></html>')
+    return web.Response(text=html_data, headers={'Content-Type': 'text/html'})
+
+
+async def get_unique_stats(request):
+    sql_queries = {
+        'unique_day': "SELECT COUNT(DISTINCT user_id) FROM visits WHERE DATE(timestamp) = DATE('now')",
+        'unique_month': "SELECT COUNT(DISTINCT user_id) FROM visits WHERE strftime('%Y-%m', timestamp) = strftime("
+                        "'%Y-%m', 'now')",
+        'unique_year': "SELECT COUNT(DISTINCT user_id) FROM visits WHERE strftime('%Y', timestamp) = strftime('%Y', "
+                       "'now')",
+        'unique_total': "SELECT COUNT(DISTINCT user_id) FROM visits"
+    }
+    values = get_stats_values(sql_queries)
+    html_data = get_html_data_unique_stats(values)
     return web.Response(text=html_data, headers={'Content-Type': 'text/html'})
 
 
@@ -95,9 +109,9 @@ def insert_data_base(ip, country, browser, user_id):
 
 
 def get_html_data_handle():
-    link_stats = 'http://172.20.10.2:8080/stats'
+    link_stats = 'http://0.0.0.0:8080/stats'
     link_text_stats = 'Get stats\n'
-    link_unique_stats = 'http://172.20.10.2:8080/unistats'
+    link_unique_stats = 'http://0.0.0.0:8080/unistats'
     link_text_unique_stats = 'Get unique stats'
     text_data = "Hello,\n" \
                 "If you want to see counter - use /stats\n" \
@@ -107,6 +121,18 @@ def get_html_data_handle():
                 f'<pre style="word-wrap: break-word; white-space: pre-wrap;">{text_data}</pre>' \
                 f'<a style = "color: #DCDCDC;"href="{link_stats}">{link_text_stats}</a><br>' \
                 f'<a style = "color: #DCDCDC;" href="{link_unique_stats}">{link_text_unique_stats}</a></body></html> '
+    return html_data
+
+
+def get_html_data_unique_stats(values):
+    link = 'http://0.0.0.0:8080/'
+    link_text = 'Вернуться назад'
+    text_data = f"Number of visits this day: {values.get('unique_day')}\n" \
+                f"Number of visits this month: {values.get('unique_month')}\n" \
+                f"Number of visits this year: {values.get('unique_year')}\n" \
+                f"Number of visits this total: {values.get('unique_total')}\n"
+    html_data = f'<html></head><body style="background-color: #161616;color: #DCDCDC;"><pre style="word-wrap: ' \
+                f'break-word; white-space: pre-wrap;">{text_data}</pre><a style = "color: #DCDCDC;" href="{link}">{link_text}</a></body></html> '
     return html_data
 
 
