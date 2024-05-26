@@ -125,7 +125,7 @@ def get_html_data_handle():
 
 
 def get_html_data_unique_stats(values):
-    link = 'http://104.248.81.33:8080/'
+    link = 'http://0.0.0.0:8080/'
     link_text = 'Вернуться назад'
     text_data = f"Number of visits this day: {values.get('unique_day')}\n" \
                 f"Number of visits this month: {values.get('unique_month')}\n" \
